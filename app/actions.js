@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSql } from "../lib/db";
 import { usuarioAtual } from "../lib/auth";
+import { sincronizar } from "../lib/sync";
 
 const NAO_LOGADO = { ok: false, mensagem: "Sua sessão expirou. Entre novamente para editar." };
 
@@ -84,4 +85,35 @@ export async function excluirMusica(id) {
   }
   revalidatePath("/");
   return { ok: true };
+}
+
+export async function definirOrigem(id, origem) {
+  const usuario = await usuarioAtual();
+  if (!usuario) return NAO_LOGADO;
+  if (origem !== "nac" && origem !== "int") return { ok: false, mensagem: "Valor inválido." };
+
+  try {
+    const sql = getSql();
+    await sql`
+      WITH alterada AS (
+        UPDATE musicas SET origem = ${origem}::text WHERE id = ${id}::int RETURNING id, titulo
+      )
+      INSERT INTO historico (musica_id, titulo, acao, usuario)
+      SELECT id, titulo, ${origem === "nac" ? "classificou como nacional" : "classificou como internacional"}::text, ${usuario}::text
+      FROM alterada`;
+  } catch (e) {
+    console.error(e);
+    return { ok: false, mensagem: "Não foi possível alterar. Tente de novo." };
+  }
+  revalidatePath("/");
+  return { ok: true };
+}
+
+export async function sincronizarAgora() {
+  const usuario = await usuarioAtual();
+  if (!usuario) return NAO_LOGADO;
+
+  const r = await sincronizar({ forcar: true });
+  revalidatePath("/");
+  return r;
 }

@@ -64,3 +64,26 @@ e sempre que o `db/schema.sql` mudar.
 - Após 5 senhas erradas, o IP fica bloqueado por 15 minutos.
 - O nome é digitado pelo usuário e não é verificado: serve como registro, não como prova de identidade.
 - Para trocar a senha, altere `EDIT_PASSWORD` e faça um novo deploy. Para deslogar todo mundo, troque o `SESSION_SECRET`.
+
+## Spotify
+
+O **player** da playlist aparece no site sem configuração nenhuma e sempre mostra a playlist atual.
+
+A **sincronização** (trazer músicas novas do Spotify para a tabela) precisa de configuração, por causa das
+regras do Spotify desde fevereiro de 2026: o app precisa pertencer a uma conta **Premium** e a playlist precisa
+ser **da conta que autoriza** (ou colaborativa).
+
+1. Em https://developer.spotify.com/dashboard, crie um app (API: Web API) com o Redirect URI
+   `http://127.0.0.1:8888/callback` (precisa ser exatamente este; `localhost` não é aceito).
+2. Coloque `SPOTIFY_CLIENT_ID` e `SPOTIFY_CLIENT_SECRET` no `.env.local`.
+3. Rode `npm run spotify:auth`, abra o link, autorize com a conta dona da playlist e copie a linha
+   `SPOTIFY_REFRESH_TOKEN=...` que aparece no terminal para o `.env.local`.
+4. Coloque as três variáveis também na Vercel (Settings > Environment Variables) e faça um novo deploy.
+
+Como funciona:
+- Quando alguém abre o site, ele confere a playlist no Spotify (no máximo 1 vez a cada 10 minutos).
+- Músicas que já existem na tabela são reconhecidas pelo título e artista (ignorando "- Ao Vivo", "(Remaster)" etc.).
+- As que faltam entram como **novas**, com "Por: Spotify". O Spotify não informa se a música é nacional ou
+  internacional: elas entram com "?" e quem está logado escolhe nac/int na própria linha.
+- Músicas removidas da playlist **não** são apagadas da tabela.
+- Quem está logado também pode clicar em "Sincronizar agora".

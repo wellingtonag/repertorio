@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { alternarNova, excluirMusica } from "../app/actions";
+import { alternarNova, excluirMusica, definirOrigem } from "../app/actions";
 
 const fmtData = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
@@ -132,13 +132,32 @@ export default function SongTable({ musicas, usuario }) {
                 <td className="px-3 py-2 font-medium">{m.titulo}</td>
                 <td className="px-3 py-2">{m.artista}</td>
                 <td className="px-3 py-2">
-                  <span
-                    className={`rounded px-1.5 py-0.5 text-xs font-semibold ${
-                      m.origem === "int" ? "bg-sky-100 text-sky-800" : "bg-emerald-100 text-emerald-800"
-                    }`}
-                  >
-                    {m.origem}
-                  </span>
+                  {m.origem ? (
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-xs font-semibold ${
+                        m.origem === "int" ? "bg-sky-100 text-sky-800" : "bg-emerald-100 text-emerald-800"
+                      }`}
+                    >
+                      {m.origem}
+                    </span>
+                  ) : usuario ? (
+                    <select
+                      aria-label={`Classificar ${m.titulo} como nacional ou internacional`}
+                      defaultValue=""
+                      onChange={(e) =>
+                        e.target.value && executar(() => definirOrigem(m.id, e.target.value))
+                      }
+                      className="rounded border border-amber-500 bg-white px-1 py-0.5 text-xs"
+                    >
+                      <option value="">?</option>
+                      <option value="nac">nac</option>
+                      <option value="int">int</option>
+                    </select>
+                  ) : (
+                    <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-semibold text-slate-600">
+                      ?
+                    </span>
+                  )}
                 </td>
                 <td className="px-3 py-2">{m.instrumento}</td>
                 <td className="px-3 py-2">

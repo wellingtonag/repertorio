@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "db:setup": "node --env-file=.env.local scripts/setup.mjs"
+    "db:setup": "node --env-file=.env.local scripts/setup.mjs",
+    "spotify:auth": "node --env-file=.env.local scripts/spotify-auth.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

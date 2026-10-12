@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-palco: #eef1f5;
+  --color-tinta: #1b2433;
+  --color-marca: #ffe27a;      /* marca-texto: músicas novas */
+  --color-marca-borda: #e0a800;
+}
+
+body {
+  background: var(--color-palco);
+  color: var(--color-tinta);
+}

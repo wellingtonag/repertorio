@@ -11,6 +11,14 @@ export default function SpotifyPlayer({ playlistId, usuario, sync }) {
     <section className="mt-8">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-xl font-bold">Playlist no Spotify</h2>
+        <a
+          href={`https://open.spotify.com/playlist/${playlistId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-slate-700 underline"
+        >
+          Abrir no Spotify
+        </a>
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
           {sync.configurado ? (
             <>

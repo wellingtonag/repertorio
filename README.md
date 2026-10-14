@@ -87,3 +87,55 @@ Como funciona:
   internacional: elas entram com "?" e quem está logado escolhe nac/int na própria linha.
 - Músicas removidas da playlist **não** são apagadas da tabela.
 - Quem está logado também pode clicar em "Sincronizar agora".
+
+## Imprimir e baixar em Excel
+
+Só para quem está logado:
+
+1. Marque as músicas na primeira coluna da tabela. O número que aparece ao lado é a posição na ordem de impressão.
+   A caixa do cabeçalho marca (ou desmarca) todas as músicas que os filtros estão mostrando, na ordem atual da tabela
+   (dá para ordenar clicando nos títulos das colunas).
+2. No painel "Repertório selecionado", ajuste a ordem com as setas ↑ ↓ ou remova com ✕.
+3. Clique em **Imprimir** (a página imprime só o repertório; no diálogo dá para salvar em PDF) ou em **Baixar Excel**
+   (.xlsx com Nº, música, artista, nac/int, instrumento, status, data de inserção e quem inseriu; as novas ficam em amarelo).
+
+Cada impressão ou download é registrado no "Histórico de alterações" com o nome de quem fez e a lista de músicas
+na ordem usada. A impressão é registrada quando a janela de impressão é aberta (o navegador não avisa se a pessoa
+cancelou depois). O Excel é gerado no servidor, com os dados do banco, e só é entregue depois de registrado.
+
+## Coluna Nac/Int
+
+O Spotify não informa se a música é nacional ou internacional. Na sincronização, a música herda o nac/int de outra
+música do mesmo artista que já esteja na tabela ("Ver. Pearl Jam" conta como Pearl Jam). Quando o artista é novo, a
+linha fica com "?" e quem está logado escolhe nac ou int na própria linha.
+
+## Colunas da impressão e do Excel
+
+No painel "Repertório selecionado" há uma caixa para cada coluna: Nº, Música (sempre incluída), Autor/Banda, Nac/Int,
+Instr., Status, Inserida em e Por. A escolha vale para a impressão e para o Excel, fica salva no navegador e é
+registrada no histórico junto com a lista de músicas. Padrão: Nº, Música, Autor/Banda, Nac/Int e Instr.
+No Excel, as músicas novas só ficam em amarelo se a coluna "Status" estiver incluída.
+
+## Ouvir no site
+
+- Cada linha tem um botão de play. Ele só funciona para músicas que já têm o link do Spotify (`spotify_id`), que é
+  preenchido pela sincronização. Linhas com o play cinza ainda não foram vinculadas: use "Sincronizar agora".
+- Quem está logado e seleciona músicas pode clicar em **Tocar na ordem** (ou no play de uma música da lista, para
+  começar dali). Uma barra no rodapé mostra a posição, a música atual, a próxima, os controles (anterior, play/pause,
+  próxima) e a lista "Ordem". Quando uma música termina, a próxima toca sozinha. Músicas sem link são puladas.
+- O som vem do player incorporado do Spotify (iFrame API). Normalmente ele toca a música inteira para quem está
+  logado no Spotify no mesmo navegador e apenas um trecho de 30 segundos para os demais. O navegador pode bloquear o
+  início automático (principalmente o Safari); nesse caso, aperte o play dentro da barra.
+- Se o player do Spotify não carregar (bloqueador de anúncios, rede), a barra avisa e mostra o link "Abrir no Spotify".
+
+## Se o player da playlist não aparece no site publicado
+
+1. Na Vercel, aba Deployments: o último deploy do branch de produção está **Ready**? Se estiver com erro, o site
+   publicado continua na versão antiga (sem o player). Veja o log do build.
+2. Confirme que todos os arquivos novos foram para o GitHub (`git status` não pode listar arquivos pendentes).
+3. Abra `https://open.spotify.com/embed/playlist/ID_DA_PLAYLIST` direto no navegador. Se aparecer a playlist, ela é
+   pública e o endereço está certo.
+4. No site publicado, tecle F12 e veja a aba Network: a chamada para `open.spotify.com/embed/playlist/...` deve
+   existir. Se existir e o quadro continuar em branco, o bloqueio vem do Spotify ou do navegador; há relatos
+   semelhantes na comunidade de desenvolvedores do Spotify (funciona em `localhost` e fica em branco no site
+   publicado), sem correção documentada. O link "Abrir no Spotify" da seção serve de alternativa.

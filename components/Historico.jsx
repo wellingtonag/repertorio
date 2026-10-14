@@ -15,11 +15,19 @@ export default function Historico({ itens }) {
       ) : (
         <ul className="mt-3 divide-y divide-slate-100 text-sm">
           {itens.map((h) => (
-            <li key={h.id} className="flex flex-wrap gap-x-2 py-1.5">
-              <span className="tabular-nums text-slate-500">{fmtData.format(new Date(h.em))}</span>
-              <span>
-                <strong>{h.usuario}</strong> {h.acao} <em>{h.titulo}</em>
-              </span>
+            <li key={h.id} className="py-1.5">
+              <div className="flex flex-wrap gap-x-2">
+                <span className="tabular-nums text-slate-500">{fmtData.format(new Date(h.em))}</span>
+                <span>
+                  <strong>{h.usuario}</strong> {h.acao} <em>{h.titulo}</em>
+                </span>
+              </div>
+              {h.detalhes && (
+                <details className="ml-1 mt-1">
+                  <summary className="cursor-pointer text-xs text-slate-500">ver músicas e ordem</summary>
+                  <pre className="mt-1 whitespace-pre-wrap font-sans text-xs text-slate-600">{h.detalhes}</pre>
+                </details>
+              )}
             </li>
           ))}
         </ul>

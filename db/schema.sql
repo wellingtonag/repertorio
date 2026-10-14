@@ -25,8 +25,11 @@ CREATE TABLE IF NOT EXISTS historico (
   titulo    TEXT        NOT NULL,
   acao      TEXT        NOT NULL,
   usuario   TEXT        NOT NULL,
+  detalhes  TEXT,
   em        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE historico ADD COLUMN IF NOT EXISTS detalhes TEXT;
 
 CREATE TABLE IF NOT EXISTS tentativas_login (
   id SERIAL PRIMARY KEY,

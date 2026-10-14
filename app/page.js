@@ -8,6 +8,7 @@ import SongForm from "../components/SongForm";
 import SongTable from "../components/SongTable";
 import SpotifyPlayer from "../components/SpotifyPlayer";
 import Historico from "../components/Historico";
+import PlayerProvider from "../components/PlayerProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +17,11 @@ async function carregar() {
     const sql = getSql();
     const [rows, hist, sinc] = await Promise.all([
       sql`
-        SELECT id, titulo, artista, origem, instrumento, nova, criada_em, criada_por
+        SELECT id, titulo, artista, origem, instrumento, nova, criada_em, criada_por, spotify_id
         FROM musicas
         ORDER BY criada_em DESC, id ASC`,
       sql`
-        SELECT id, titulo, acao, usuario, em
+        SELECT id, titulo, acao, usuario, detalhes, em
         FROM historico
         ORDER BY em DESC, id DESC
         LIMIT 30`,
@@ -49,25 +50,35 @@ export default async function Home() {
   if (!erro && sync.configurado) after(() => sincronizar());
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Topo usuario={usuario} />
-
-      {erro ? (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
-          <p className="font-semibold">Não foi possível ler o banco de dados.</p>
-          <p className="mt-1 text-sm">
-            Confira a variável <code>DATABASE_URL</code> e rode <code>npm run db:setup</code> para
-            criar ou atualizar as tabelas. Detalhe: {erro}
-          </p>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 print:max-w-none print:p-0">
+      <PlayerProvider>
+        <div className="print:hidden">
+          <Topo usuario={usuario} />
         </div>
-      ) : (
-        <>
-          {usuario && <SongForm />}
-          <SongTable musicas={musicas} usuario={usuario} />
-          <SpotifyPlayer playlistId={PLAYLIST_ID} usuario={usuario} sync={sync} />
-          <Historico itens={historico} />
-        </>
-      )}
+
+        {erro ? (
+          <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 print:hidden">
+            <p className="font-semibold">Não foi possível ler o banco de dados.</p>
+            <p className="mt-1 text-sm">
+              Confira a variável <code>DATABASE_URL</code> e rode <code>npm run db:setup</code> para
+              criar ou atualizar as tabelas. Detalhe: {erro}
+            </p>
+          </div>
+        ) : (
+          <>
+            {usuario && (
+              <div className="print:hidden">
+                <SongForm />
+              </div>
+            )}
+            <SongTable musicas={musicas} usuario={usuario} />
+            <div className="print:hidden">
+              <SpotifyPlayer playlistId={PLAYLIST_ID} usuario={usuario} sync={sync} />
+              <Historico itens={historico} />
+            </div>
+          </>
+        )}
+      </PlayerProvider>
     </main>
   );
 }

@@ -11,3 +11,13 @@ body {
   background: var(--color-palco);
   color: var(--color-tinta);
 }
+
+@page {
+  margin: 14mm;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+}

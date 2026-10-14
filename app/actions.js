@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getSql } from "../lib/db";
 import { usuarioAtual } from "../lib/auth";
 import { sincronizar } from "../lib/sync";
+import { buscarSelecao, normalizarIds, registrarExportacao } from "../lib/exportar";
+import { normalizarColunas } from "../lib/colunas";
 
 const NAO_LOGADO = { ok: false, mensagem: "Sua sessão expirou. Entre novamente para editar." };
 
@@ -116,4 +118,27 @@ export async function sincronizarAgora() {
   const r = await sincronizar({ forcar: true });
   revalidatePath("/");
   return r;
+}
+
+// Registra a impressão no histórico (a janela de impressão é aberta pelo navegador depois disto).
+export async function registrarImpressao(ids, colunas) {
+  const usuario = await usuarioAtual();
+  if (!usuario) return NAO_LOGADO;
+
+  const lista = normalizarIds(ids);
+  if (lista.length === 0) return { ok: false, mensagem: "Selecione ao menos uma música." };
+
+  let total = 0;
+  try {
+    const sql = getSql();
+    const linhas = await buscarSelecao(sql, lista);
+    if (linhas.length === 0) return { ok: false, mensagem: "As músicas selecionadas não existem mais." };
+    await registrarExportacao(sql, usuario, "imprimiu", linhas, normalizarColunas(colunas));
+    total = linhas.length;
+  } catch (e) {
+    console.error(e);
+    return { ok: false, mensagem: "Não foi possível registrar a impressão. Tente de novo." };
+  }
+  revalidatePath("/");
+  return { ok: true, total };
 }
